@@ -2,35 +2,39 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Форма Telegram</title>
+  <title>Форма обратной связи</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <form id="feedbackForm">
-    <label for="name">Имя:</label>
+    <label for="name">Имя:</label><br>
     <input type="text" id="name" name="name" required><br><br>
 
-    <label for="email">Email:</label>
+    <label for="email">Email:</label><br>
     <input type="email" id="email" name="email" required><br><br>
 
-    <label for="message">Сообщение:</label>
+    <label for="message">Сообщение:</label><br>
     <textarea id="message" name="message" required></textarea><br><br>
 
+    <!-- Telegram ID скрытое поле -->
     <input type="hidden" id="telegram_id" name="telegram_id">
 
     <button type="submit">Отправить</button>
   </form>
 
   <script>
+    // Подготовка Telegram Mini App
     window.Telegram.WebApp.ready();
-    const tgUser = Telegram.WebApp.initDataUnsafe?.user;
 
-    if (tgUser?.id) {
-      document.getElementById('telegram_id').value = tgUser.id;
+    // Установка Telegram ID в скрытое поле
+    const tgUserId = Telegram.WebApp.initDataUnsafe?.user?.id;
+    if (tgUserId) {
+      document.getElementById('telegram_id').value = tgUserId;
     }
 
-    document.getElementById('feedbackForm').addEventListener('submit', function (event) {
-      event.preventDefault();
+    // Отправка данных
+    document.getElementById('feedbackForm').addEventListener('submit', function (e) {
+      e.preventDefault();
 
       const formData = {
         name: document.getElementById('name').value,
@@ -39,19 +43,20 @@
         telegram_id: document.getElementById('telegram_id').value
       };
 
-      fetch('https://script.google.com/macros/s/AKfycbzUyuLm8ZE9ZxEP-UICCrLu1EiIWa-IGjeeQVpf72Jz_BtiJ8Y0bzdkox3TihgE5cvS3A/exec', {
+      fetch('https://script.google.com/macros/s/AKfycbx_pIRHyvkF1QIxqx1SnVobcU-3wm8QqxEc6Bcp9EdhQQAdEX_Ab-Ce1vvzDr1aos4Dog/exec', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       })
-        .then(response => response.text())
+        .then(res => res.json())
         .then(data => {
           alert("Спасибо! Данные отправлены.");
           document.getElementById('feedbackForm').reset();
           Telegram.WebApp.close();
         })
-        .catch(error => {
-          console.error('Ошибка при отправке:', error);
+        .catch(err => {
+          console.error("Ошибка:", err);
+          alert("Ошибка при отправке данных.");
         });
     });
   </script>
