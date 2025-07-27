@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Форма обратной связи(5)</title>
+  <title>Форма обратной связи (tgTapеs)</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -22,19 +22,25 @@
   </form>
 
   <script>
-    // Подготовка Telegram Mini App
-    window.Telegram.WebApp.ready();
-
-    // Выводим в консоль, что Telegram дал нам
-    console.log("initDataUnsafe:", Telegram.WebApp.initDataUnsafe);
-
-    // Получаем Telegram ID
-    const userId = Telegram.WebApp.initDataUnsafe?.user?.id;
-    if (userId) {
-      document.getElementById('telegram_id').value = userId;
+    // Подготовка Telegram Mini App (если используется)
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();
+      console.log("initDataUnsafe:", window.Telegram.WebApp.initDataUnsafe);
     }
 
-    // Обработка формы
+    // Получаем telegram_id из tgTaps (через UI API field)
+    window.addEventListener('DOMContentLoaded', () => {
+      const telegramIdField = document.getElementById('telegram_id');
+
+      if (window.__taps__?.fields?.telegram_id) {
+        telegramIdField.value = window.__taps__.fields.telegram_id;
+        console.log("Telegram ID из __taps__:", telegramIdField.value);
+      } else {
+        console.warn("telegram_id не найден в __taps__.fields");
+      }
+    });
+
+    // Обработка отправки формы
     document.getElementById('feedbackForm').addEventListener('submit', function(event) {
       event.preventDefault();
 
@@ -55,7 +61,11 @@
       .then(data => {
         alert("Спасибо! Данные отправлены.");
         document.getElementById('feedbackForm').reset();
-        Telegram.WebApp.close(); // опционально
+
+        // закрываем Mini App, если Telegram API доступен
+        if (window.Telegram?.WebApp?.close) {
+          window.Telegram.WebApp.close();
+        }
       })
       .catch(error => {
         console.error('Ошибка при отправке:', error);
