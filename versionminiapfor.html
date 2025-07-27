@@ -2,62 +2,62 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Форма обратной связи</title>
+  <title>Форма вобратной связи</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <form id="feedbackForm">
-    <label for="name">Имя:</label><br>
+    <label for="name">Имя:</label>
     <input type="text" id="name" name="name" required><br><br>
 
-    <label for="email">Email:</label><br>
+    <label for="email">Email:</label>
     <input type="email" id="email" name="email" required><br><br>
 
-    <label for="message">Сообщение:</label><br>
+    <label for="message">Сообщение:</label>
     <textarea id="message" name="message" required></textarea><br><br>
 
-    <!-- Telegram ID скрытое поле -->
+    <!-- Скрытое поле для Telegram ID -->
     <input type="hidden" id="telegram_id" name="telegram_id">
 
     <button type="submit">Отправить</button>
   </form>
 
   <script>
-    // Подготовка Telegram Mini App
+    // Telegram Mini App инициализация
     window.Telegram.WebApp.ready();
 
-    // Установка Telegram ID в скрытое поле
-    const tgUserId = Telegram.WebApp.initDataUnsafe?.user?.id;
-    if (tgUserId) {
-      document.getElementById('telegram_id').value = tgUserId;
+    // Получение Telegram ID
+    const userId = Telegram.WebApp.initDataUnsafe?.user?.id;
+    if (userId) {
+      document.getElementById("telegram_id").value = userId;
+    } else {
+      console.warn("Telegram ID не получен");
     }
 
-    // Отправка данных
-    document.getElementById('feedbackForm').addEventListener('submit', function (e) {
-      e.preventDefault();
+    // Обработка формы
+    document.getElementById("feedbackForm").addEventListener("submit", function(event) {
+      event.preventDefault();
 
-      const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        message: document.getElementById('message').value,
-        telegram_id: document.getElementById('telegram_id').value
-      };
+      const formData = new URLSearchParams();
+      formData.append("name", document.getElementById("name").value);
+      formData.append("email", document.getElementById("email").value);
+      formData.append("message", document.getElementById("message").value);
+      formData.append("telegram_id", document.getElementById("telegram_id").value);
 
-      fetch('https://script.google.com/macros/s/AKfycbx_pIRHyvkF1QIxqx1SnVobcU-3wm8QqxEc6Bcp9EdhQQAdEX_Ab-Ce1vvzDr1aos4Dog/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+      fetch("https://script.google.com/macros/s/AKfycbx_pIRHyvkF1QIxqx1SnVobcU-3wm8QqxEc6Bcp9EdhQQAdEX_Ab-Ce1vvzDr1aos4Dog/exec", {
+        method: "POST",
+        body: formData,
       })
-        .then(res => res.json())
-        .then(data => {
-          alert("Спасибо! Данные отправлены.");
-          document.getElementById('feedbackForm').reset();
-          Telegram.WebApp.close();
-        })
-        .catch(err => {
-          console.error("Ошибка:", err);
-          alert("Ошибка при отправке данных.");
-        });
+      .then(response => response.text())
+      .then(data => {
+        alert("Спасибо! Данные отправлены.");
+        document.getElementById("feedbackForm").reset();
+        Telegram.WebApp.close(); // закрытие мини-приложения
+      })
+      .catch(error => {
+        console.error("Ошибка при отправке:", error);
+        alert("Ошибка при отправке. Попробуйте ещё раз.");
+      });
     });
   </script>
 </body>
