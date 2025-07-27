@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Форма обратной связи(еще)</title>
+  <title>Форма обратной связи(5)</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -22,16 +22,19 @@
   </form>
 
   <script>
-    // Telegram Mini App API
+    // Подготовка Telegram Mini App
     window.Telegram.WebApp.ready();
 
-    // Получаем Telegram ID пользователя
+    // Выводим в консоль, что Telegram дал нам
+    console.log("initDataUnsafe:", Telegram.WebApp.initDataUnsafe);
+
+    // Получаем Telegram ID
     const userId = Telegram.WebApp.initDataUnsafe?.user?.id;
     if (userId) {
       document.getElementById('telegram_id').value = userId;
     }
 
-    // Обработка отправки формы
+    // Обработка формы
     document.getElementById('feedbackForm').addEventListener('submit', function(event) {
       event.preventDefault();
 
@@ -42,6 +45,8 @@
         telegram_id: document.getElementById('telegram_id').value
       };
 
+      console.log("Отправка данных:", formData);
+
       fetch('https://script.google.com/macros/s/AKfycby-YM-ueeA_YrIOgmbU8j7mIZzaR48bIl-FAn21Z1YPPTQagU2Q2ng_HxubRg3aHmiP3g/exec', {
         method: 'POST',
         body: JSON.stringify(formData)
@@ -50,7 +55,7 @@
       .then(data => {
         alert("Спасибо! Данные отправлены.");
         document.getElementById('feedbackForm').reset();
-        Telegram.WebApp.close(); // Опционально: закрыть мини-приложение
+        Telegram.WebApp.close(); // опционально
       })
       .catch(error => {
         console.error('Ошибка при отправке:', error);
